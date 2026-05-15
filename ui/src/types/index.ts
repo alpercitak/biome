@@ -1,4 +1,4 @@
-export interface RawSignal {
+export interface RawSignals {
   cpuUsage: number; // 0–100 %
   cpuFreqGhz: number; // e.g. 3.8
   memUsedGb: number;
@@ -9,7 +9,7 @@ export interface RawSignal {
   netDownKbps: number;
 }
 
-export interface VisualSignal {
+export interface VisualSignals {
   atmosphere: number; // cpu usage    → storm / turbulence
   pulse: number; // cpu freq     → tempo of world
   ocean: number; // memory       → sea level
@@ -51,6 +51,15 @@ export interface ThermalOrb {
   phase: number;
   speed: number;
   hue: number;
+}
+
+export interface RenderState {
+  context: CanvasRenderingContext2D;
+  width: number;
+  height: number;
+  time: number;
+  signals: VisualSignals;
+  mouse: { x: number; y: number; vx: number; vy: number };
 }
 
 export type SignalSource = 'synthetic' | 'live';

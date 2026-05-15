@@ -5,8 +5,8 @@ const PARTICLE_COUNT = 320;
 const particles: Array<Particle> = [];
 
 const createParticle = (state: RenderState, i: number): Particle => ({
-  x: Math.random() * state.W,
-  y: Math.random() * state.H,
+  x: Math.random() * state.width,
+  y: Math.random() * state.width,
   vx: (Math.random() - 0.5) * 0.3,
   vy: -Math.random() * 0.4 - 0.1,
   life: Math.random(),
@@ -25,7 +25,7 @@ export const initParticles = (state: RenderState): void => {
 };
 
 export const drawParticles = (state: RenderState): void => {
-  const { ctx, t, signals, mouse, W, H } = state;
+  const { context, time, signals, mouse, width, height } = state;
   const storm = signals.atmosphere;
   const mig = signals.migration;
 
@@ -35,7 +35,7 @@ export const drawParticles = (state: RenderState): void => {
     if (p.type === 'air') {
       p.vx += (Math.random() - 0.5) * 0.05 * (1 + storm * 4);
       p.vy += -0.02 - storm * 0.08 + (Math.random() - 0.5) * 0.03;
-      p.vx += Math.sin(t * 0.5 + p.y * 0.003) * 0.02 * (1 + storm);
+      p.vx += Math.sin(time * 0.5 + p.y * 0.003) * 0.02 * (1 + storm);
       p.vx += signals.wind * 0.04;
     } else if (p.type === 'creature') {
       p.angle += (Math.random() - 0.5) * 0.2 * (0.5 + mig * 2);
@@ -63,32 +63,34 @@ export const drawParticles = (state: RenderState): void => {
     p.y += p.vy;
     p.life += 0.003;
 
-    if (p.life > p.maxLife || p.x < -10 || p.x > W + 10 || p.y < -20) {
+    if (p.life > p.maxLife || p.x < -10 || p.x > width + 10 || p.y < -20) {
       Object.assign(p, createParticle(state, i));
-      p.x = Math.random() * W;
-      p.y = H * 0.5 + Math.random() * H * 0.2;
+      p.x = Math.random() * width;
+      p.y = height * 0.5 + Math.random() * height * 0.2;
       p.life = 0;
       continue;
     }
 
     const alpha =
       Math.sin((p.life / p.maxLife) * Math.PI) * (p.type === 'creature' ? 0.4 + mig * 0.4 : 0.15 + storm * 0.25);
-    if (alpha <= 0.005) continue;
+    if (alpha <= 0.005) {
+      continue;
+    }
 
     if (p.type === 'creature') {
-      ctx.save();
-      ctx.strokeStyle = `hsla(${140 + mig * 60},70%,65%,${alpha})`;
-      ctx.lineWidth = p.size * 0.8;
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - p.vx * 4, p.y - p.vy * 4);
-      ctx.stroke();
-      ctx.restore();
+      context.save();
+      context.strokeStyle = `hsla(${140 + mig * 60},70%,65%,${alpha})`;
+      context.lineWidth = p.size * 0.8;
+      context.beginPath();
+      context.moveTo(p.x, p.y);
+      context.lineTo(p.x - p.vx * 4, p.y - p.vy * 4);
+      context.stroke();
+      context.restore();
     } else {
-      ctx.fillStyle = p.type === 'air' ? `hsla(210,60%,75%,${alpha})` : `hsla(${p.hue},90%,65%,${alpha})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
+      context.fillStyle = p.type === 'air' ? `hsla(210,60%,75%,${alpha})` : `hsla(${p.hue},90%,65%,${alpha})`;
+      context.beginPath();
+      context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      context.fill();
     }
   }
 };
