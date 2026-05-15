@@ -32,26 +32,20 @@ body {
   top: 32px;
   right: 36px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
   z-index: 10;
   opacity: 0;
   animation: bfade 2s ease 1.5s forwards;
 }
-#b-mode {
+#b-mode,
+#b-source {
   font:
     9px/1 'Courier New',
     monospace;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-}
-#b-source {
-  font:
-    8px/1 'Courier New',
-    monospace;
-  letter-spacing: 0.15em;
-  transition: color 1s ease;
 }
 #b-hud {
   position: fixed;
