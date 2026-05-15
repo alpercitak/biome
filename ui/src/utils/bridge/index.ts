@@ -1,6 +1,14 @@
 import type { EcosystemMode, RawSignals, SignalSource } from '../../types';
 import { jitter } from '../math';
-import { DEFAULT_SIGNALS, ECOSYSTEM_MODE_MAP, ECOSYSTEM_MODES, POLL_MS, SMOOTHING_FACTOR, WS_URL } from './constants';
+import {
+  DEFAULT_SIGNALS,
+  ECOSYSTEM_MODE_MAP,
+  ECOSYSTEM_MODES,
+  MODE_DURATION,
+  POLL_MS,
+  SMOOTHING_FACTOR,
+  WS_URL,
+} from './constants';
 
 export class Bridge {
   raw = DEFAULT_SIGNALS;
@@ -9,7 +17,6 @@ export class Bridge {
   private target: RawSignals = { ...this.raw };
   private modeIdx = 0;
   private modeTimer = 0;
-  private readonly modeDuration = 600;
   private ws: WebSocket | null = null;
 
   constructor() {
@@ -66,7 +73,7 @@ export class Bridge {
   tick = (): void => {
     if (this.source === 'synthetic') {
       this.modeTimer++;
-      if (this.modeTimer > this.modeDuration + Math.random() * 400) {
+      if (this.modeTimer > MODE_DURATION + Math.random() * 400) {
         this.modeTimer = 0;
         this.modeIdx = (this.modeIdx + 1) % ECOSYSTEM_MODES.length;
         this.#applyMode(this.mode);

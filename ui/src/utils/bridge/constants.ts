@@ -3,6 +3,7 @@ import type { EcosystemMode, RawSignals } from '../../types';
 export const WS_URL = 'ws://localhost:9999';
 export const POLL_MS = 800;
 
+export const MODE_DURATION = 600;
 export const SMOOTHING_FACTOR = 0.004;
 
 export const DEFAULT_SIGNALS = {
