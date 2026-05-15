@@ -39,7 +39,7 @@ build: build-ui build-daemon
 
  ## Build UI for production (output: ui/dist)
 build-ui:
-	cd ui && bun run build
+	cd ui && bun install && bun run build
 	@echo "$(CYAN)ui built$(RESET) → ui/dist/"
 
 ## Build daemon release binary (output: daemon/target/release/biome-daemon)
@@ -69,3 +69,9 @@ clean:
 check:
 	cd ui && bunx tsc --noEmit
 	cargo check --manifest-path daemon/Cargo.toml
+
+up:
+	docker-compose up --build --remove-orphans
+
+down:
+	docker-compose down		

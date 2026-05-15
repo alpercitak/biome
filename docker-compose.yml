@@ -1,0 +1,31 @@
+services:
+  daemon:
+    build:
+      context: .
+      dockerfile: daemon/Dockerfile
+    restart: unless-stopped
+    # Needs host network access to read real system metrics
+    # On Linux this gives full host visibility.
+    # On macOS/Windows (Docker Desktop) metrics reflect the VM, not the host.
+    network_mode: host
+    # Alternatively, use bridge network and accept VM-level metrics:
+    # networks:
+    #   - biome
+    # ports:
+    #   - "9999:9999"
+
+  ui:
+    build:
+      context: .
+      dockerfile: ui/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - daemon
+    networks:
+      - biome
+
+networks:
+  biome:
+    driver: bridge
