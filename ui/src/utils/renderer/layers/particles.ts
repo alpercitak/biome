@@ -1,4 +1,4 @@
-import type { Particle, RenderState } from '../../types';
+import type { Particle, RenderState } from '../../../types';
 
 const PARTICLE_COUNT = 320;
 
