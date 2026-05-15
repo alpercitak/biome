@@ -1,5 +1,6 @@
-import type { RenderState, VisualSignals } from '../../types';
+import type { RenderState } from '../../types';
 import { DOM } from '../dom';
+import { DEFAULT_MOUSE, DEFAULT_SIGNALS } from './constants';
 import { drawLightning } from './layers/lightning';
 import { drawOcean } from './layers/ocean';
 import { drawOrbs, initOrbs } from './layers/orbs';
@@ -10,8 +11,8 @@ export class Renderer implements RenderState {
   width = 0;
   height = 0;
   time = 0;
-  mouse = { x: -1000, y: -1000, vx: 0, vy: 0, px: -1000, py: -1000 };
-  signals: VisualSignals = { atmosphere: 0.1, pulse: 0.25, ocean: 0.4, thermals: 0.15, wind: 0.2, migration: 0.2 };
+  mouse = DEFAULT_MOUSE;
+  signals = DEFAULT_SIGNALS;
 
   constructor() {
     const ctx = DOM.canvas.getContext('2d');

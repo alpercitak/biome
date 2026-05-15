@@ -53,13 +53,21 @@ export interface ThermalOrb {
   hue: number;
 }
 
+export interface MousePosition {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  px?: number;
+  py?: number;
+}
 export interface RenderState {
   context: CanvasRenderingContext2D;
   width: number;
   height: number;
   time: number;
   signals: VisualSignals;
-  mouse: { x: number; y: number; vx: number; vy: number };
+  mouse: MousePosition;
 }
 
 export type SignalSource = 'synthetic' | 'live';
