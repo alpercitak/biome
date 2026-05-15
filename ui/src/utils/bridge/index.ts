@@ -1,7 +1,6 @@
 import type { EcosystemMode, RawSignals, SignalSource } from '../../types';
-import { DEFAULT_SIGNALS, ECOSYSTEM_MODE_MAP, ECOSYSTEM_MODES, SMOOTHING_FACTOR } from './constants';
-
-const jitter = (v: number) => v * (1 + (Math.random() - 0.5) * 0.12);
+import { jitter } from '../math';
+import { DEFAULT_SIGNALS, ECOSYSTEM_MODE_MAP, ECOSYSTEM_MODES, POLL_MS, SMOOTHING_FACTOR, WS_URL } from './constants';
 
 export class Bridge {
   raw = DEFAULT_SIGNALS;
@@ -11,8 +10,10 @@ export class Bridge {
   private modeIdx = 0;
   private modeTimer = 0;
   private readonly modeDuration = 600;
+  private ws: WebSocket | null = null;
 
   constructor() {
+    this.#tryLive();
     this.#applyMode('calm');
   }
 
@@ -33,6 +34,33 @@ export class Bridge {
       netUpKbps: jitter(targetMode.netUpKbps),
       netDownKbps: jitter(targetMode.netDownKbps),
     };
+  };
+
+  #tryLive = (): void => {
+    try {
+      this.ws = new WebSocket(WS_URL);
+      this.ws.onopen = () => {
+        this.source = 'live';
+      };
+      this.ws.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data) as Partial<RawSignals>;
+          Object.assign(this.target, d);
+          if (d.memTotalGb) {
+            this.raw.memTotalGb = d.memTotalGb;
+          }
+        } catch {
+          /* skip */
+        }
+      };
+      this.ws.onclose = () => {
+        this.source = 'synthetic';
+        setTimeout(() => this.#tryLive(), POLL_MS * 5);
+      };
+      this.ws.onerror = () => this.ws?.close();
+    } catch {
+      this.source = 'synthetic';
+    }
   };
 
   tick = (): void => {

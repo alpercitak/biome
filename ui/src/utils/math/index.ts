@@ -11,3 +11,5 @@ export const normalize = (raw: RawSignals): VisualSignals => ({
   wind: clamp(raw.fanRpm / MAX_FAN_RPM),
   migration: clamp((raw.netUpKbps + raw.netDownKbps) / MAX_NET_KBPS),
 });
+
+export const jitter = (v: number) => v * (1 + (Math.random() - 0.5) * 0.12);
