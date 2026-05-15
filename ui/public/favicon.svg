@@ -1,0 +1,37 @@
+<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Biome</title>
+  <desc>A dark ocean scene with a wave and atmospheric particles</desc>
+
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .sky-bg   { fill: #050810; }
+      .ocean    { fill: #0a1e35; }
+      .wave     { stroke: #3aa8c1; }
+      .wave2    { stroke: #1e6a80; }
+      .particle { fill: #6ab0e0; }
+      .glow     { fill: #1a4a6a; }
+    }
+    .sky-bg   { fill: #060b14; }
+    .ocean    { fill: #081828; }
+    .wave     { stroke: #3aa8c1; fill: none; stroke-width: 0.9; stroke-linecap: round; }
+    .wave2    { stroke: #1a5c72; fill: none; stroke-width: 0.6; stroke-linecap: round; }
+    .particle { fill: #7ec8e8; }
+    .glow     { fill: #0f3550; }
+  </style>
+
+  <rect class="sky-bg" width="32" height="32" rx="6"/>
+
+  <ellipse class="glow" cx="10" cy="13" rx="7" ry="5" opacity="0.5"/>
+
+  <circle class="particle" cx="8"  cy="10" r="0.9" opacity="0.7"/>
+  <circle class="particle" cx="14" cy="7"  r="0.7" opacity="0.5"/>
+  <circle class="particle" cx="21" cy="9"  r="1.0" opacity="0.8"/>
+  <circle class="particle" cx="25" cy="6"  r="0.6" opacity="0.4"/>
+  <circle class="particle" cx="5"  cy="14" r="0.5" opacity="0.35"/>
+  <circle class="particle" cx="18" cy="12" r="0.8" opacity="0.55"/>
+  <circle class="particle" cx="28" cy="11" r="0.6" opacity="0.45"/>
+
+  <path class="ocean" d="M0 20 Q4 18 8 20 Q12 22 16 19.5 Q20 17 24 19.5 Q28 22 32 20 L32 32 L0 32 Z"/>
+  <path class="wave2" d="M0 21.5 Q4 19.5 8 21.5 Q12 23.5 16 21 Q20 18.5 24 21 Q28 23.5 32 21.5"/>
+  <path class="wave"  d="M0 20 Q4 18 8 20 Q12 22 16 19.5 Q20 17 24 19.5 Q28 22 32 20"/>
+</svg>
