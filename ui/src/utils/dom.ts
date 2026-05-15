@@ -7,6 +7,7 @@ const mustGet = <T extends HTMLElement>(id: string): T => {
 };
 
 export const DOM = {
+  canvas: mustGet<HTMLCanvasElement>('b-canvas'),
   mode: mustGet<HTMLDivElement>('b-mode'),
   source: mustGet<HTMLDivElement>('b-source'),
   signalFill: (id: string) => mustGet<HTMLDivElement>(`b-signal-fill-${id}`),

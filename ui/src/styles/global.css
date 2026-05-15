@@ -14,6 +14,12 @@ body {
   cursor: none;
   color: var(--text-color);
 }
+#b-canvas {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
 #b-topleft {
   position: fixed;
   top: 32px;
