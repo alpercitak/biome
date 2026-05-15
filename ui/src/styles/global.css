@@ -1,5 +1,138 @@
+:root {
+  --text-color: rgba(255, 255, 255, 0.55);
+}
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+body {
+  background: #000;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  cursor: none;
+  color: var(--text-color);
+}
+#b-topleft {
+  position: fixed;
+  top: 32px;
+  left: 36px;
+  font:
+    11px/1 'Courier New',
+    monospace;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  z-index: 10;
+  opacity: 0;
+  animation: bfade 2s ease 1s forwards;
+}
+#b-topright {
+  position: fixed;
+  top: 32px;
+  right: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  z-index: 10;
+  opacity: 0;
+  animation: bfade 2s ease 1.5s forwards;
+}
+#b-mode {
+  font:
+    9px/1 'Courier New',
+    monospace;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+#b-source {
+  font:
+    8px/1 'Courier New',
+    monospace;
+  letter-spacing: 0.15em;
+  transition: color 1s ease;
+}
+#b-hud {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  opacity: 0;
+  animation: bfade 2s ease 2s forwards;
+}
+#b-signals {
+  display: flex;
+  gap: 28px;
+  align-items: flex-end;
+}
+#b-cursor {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+}
+.b-signal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.b-signal__label {
+  font:
+    8px/1 'Courier New',
+    monospace;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.b-signal__bar {
+  width: 52px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.b-signal__fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.6s ease;
+}
+.b-signal__value {
+  font:
+    8px/1 'Courier New',
+    monospace;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+#b-signal-fill-atmosphere {
+  background: rgba(120, 160, 255, 0.7);
+}
+#b-signal-fill-pulse {
+  background: rgba(160, 120, 255, 0.7);
+}
+#b-signal-fill-ocean {
+  background: rgba(80, 200, 180, 0.7);
+}
+#b-signal-fill-thermals {
+  background: rgba(255, 140, 60, 0.7);
+}
+#b-signal-fill-wind {
+  background: rgba(200, 230, 255, 0.7);
+}
+#b-signal-fill-migration {
+  background: rgba(120, 230, 120, 0.7);
+}
+@keyframes bfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
