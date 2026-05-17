@@ -46,4 +46,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - run: cargo fmt --manifest-path daemon/Cargo.toml --check
+      - run: cargo clippy --manifest-path daemon/Cargo.toml -- --D warnings
       - run: make build

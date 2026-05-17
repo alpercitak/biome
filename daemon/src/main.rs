@@ -39,7 +39,7 @@ struct Collector {
 impl Collector {
     fn new() -> Self {
         let mut sys = System::new();
-        sys.refresh_cpu_all(); 
+        sys.refresh_cpu_all();
         sys.refresh_memory();
         Self {
             sys,
@@ -59,14 +59,20 @@ impl Collector {
         let cpu_usage = self.sys.cpus().iter().map(|c| c.cpu_usage()).sum::<f32>()
             / self.sys.cpus().len() as f32;
 
-        let cpu_freq_ghz = self.sys.cpus().iter().map(|c| c.frequency() as f32).sum::<f32>()
+        let cpu_freq_ghz = self
+            .sys
+            .cpus()
+            .iter()
+            .map(|c| c.frequency() as f32)
+            .sum::<f32>()
             / self.sys.cpus().len() as f32
             / 1000.0;
 
         let mem_total_gb = self.sys.total_memory() as f32 / 1_073_741_824.0;
-        let mem_used_gb  = self.sys.used_memory()  as f32 / 1_073_741_824.0;
+        let mem_used_gb = self.sys.used_memory() as f32 / 1_073_741_824.0;
 
-        let temp_c = self.components
+        let temp_c = self
+            .components
             .iter()
             .find(|c| {
                 let l = c.label().to_lowercase();
@@ -78,9 +84,9 @@ impl Collector {
         let (total_up, total_down) = self.networks.iter().fold((0u64, 0u64), |(u, d), (_, n)| {
             (u + n.transmitted(), d + n.received())
         });
-        let delta_up   = total_up.saturating_sub(self.prev_net_up);
+        let delta_up = total_up.saturating_sub(self.prev_net_up);
         let delta_down = total_down.saturating_sub(self.prev_net_down);
-        self.prev_net_up   = total_up;
+        self.prev_net_up = total_up;
         self.prev_net_down = total_down;
         let s = POLL_MS as f32 / 1000.0;
 
@@ -91,7 +97,7 @@ impl Collector {
             mem_total_gb,
             temp_c,
             fan_rpm: 0.0, // platform-specific; UI falls back to thermal signal
-            net_up_kbps:   delta_up   as f32 / 1024.0 / s,
+            net_up_kbps: delta_up as f32 / 1024.0 / s,
             net_down_kbps: delta_down as f32 / 1024.0 / s,
         }
     }
@@ -100,7 +106,10 @@ impl Collector {
 async fn handle(stream: TcpStream, addr: SocketAddr, mut rx: broadcast::Receiver<String>) {
     let ws = match accept_async(stream).await {
         Ok(ws) => ws,
-        Err(e) => { eprintln!("[biome] handshake {addr}: {e}"); return; }
+        Err(e) => {
+            eprintln!("[biome] handshake {addr}: {e}");
+            return;
+        }
     };
     println!("[biome] + {addr}");
     let (mut sink, mut source) = ws.split();
@@ -131,7 +140,10 @@ async fn main() {
         tokio::spawn(async move {
             let c = Arc::new(Mutex::new(Collector::new()));
             loop {
-                let json = { let mut col = c.lock().unwrap(); serde_json::to_string(&col.collect()).unwrap() };
+                let json = {
+                    let mut col = c.lock().unwrap();
+                    serde_json::to_string(&col.collect()).unwrap()
+                };
                 let _ = tx.send(json);
                 tokio::time::sleep(Duration::from_millis(POLL_MS)).await;
             }
@@ -139,7 +151,10 @@ async fn main() {
     }
     loop {
         match listener.accept().await {
-            Ok((stream, addr)) => { let rx = tx.subscribe(); tokio::spawn(handle(stream, addr, rx)); }
+            Ok((stream, addr)) => {
+                let rx = tx.subscribe();
+                tokio::spawn(handle(stream, addr, rx));
+            }
             Err(e) => eprintln!("[biome] accept: {e}"),
         }
     }
