@@ -66,6 +66,7 @@ export interface RenderState {
   width: number;
   height: number;
   time: number;
+  step: number; // elapsed time this frame, in 60fps frames
   signals: VisualSignals;
   mouse: MousePosition;
 }

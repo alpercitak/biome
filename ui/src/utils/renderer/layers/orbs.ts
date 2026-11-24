@@ -17,10 +17,10 @@ export const initOrbs = ({ width, height }: RenderState): void => {
   }
 };
 
-export const drawOrbs = ({ context, time, signals }: RenderState): void => {
+export const drawOrbs = ({ context, time, step, signals }: RenderState): void => {
   for (const orb of orbs) {
-    orb.x += Math.sin(time * orb.speed * 1000 + orb.phase) * 0.3;
-    orb.y += Math.cos(time * orb.speed * 800 + orb.phase) * 0.15;
+    orb.x += Math.sin(time * orb.speed * 1000 + orb.phase) * 0.3 * step;
+    orb.y += Math.cos(time * orb.speed * 800 + orb.phase) * 0.15 * step;
     const intensity = signals.thermals * 0.14 + 0.02;
     const r = orb.r * (1 + signals.thermals * 0.8);
     const g = context.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, r);

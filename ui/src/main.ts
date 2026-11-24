@@ -6,13 +6,21 @@ import { Renderer } from './utils/renderer';
 const bridge = new Bridge();
 const renderer = new Renderer();
 
-const loop = (): void => {
-  bridge.tick();
+// Simulation constants are tuned per 60fps frame; scale by elapsed frames so speed
+// doesn't depend on refresh rate. Capped so a backgrounded tab doesn't jump on return.
+const FRAME_MS = 1000 / 60;
+const MAX_STEP = 3;
+let last = performance.now();
+
+const loop = (now: number): void => {
+  const step = Math.min((now - last) / FRAME_MS, MAX_STEP);
+  last = now;
+  bridge.tick(step);
   const visual = normalize(bridge.raw);
   renderer.signals = visual;
-  renderer.frame();
+  renderer.frame(step);
   updateHUD(bridge.raw, visual, bridge.source, bridge.mode);
   requestAnimationFrame(loop);
 };
 
-loop();
+requestAnimationFrame(loop);

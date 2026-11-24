@@ -11,6 +11,7 @@ export class Renderer implements RenderState {
   width = 0;
   height = 0;
   time = 0;
+  step = 1;
   mouse = { ...DEFAULT_MOUSE };
   signals = DEFAULT_SIGNALS;
 
@@ -85,8 +86,9 @@ export class Renderer implements RenderState {
     drawOcean(this);
   };
 
-  frame = (): void => {
-    this.time += 0.012 + this.signals.pulse * 0.012;
+  frame = (step: number): void => {
+    this.step = step;
+    this.time += (0.012 + this.signals.pulse * 0.012) * step;
     this.#draw();
   };
 }

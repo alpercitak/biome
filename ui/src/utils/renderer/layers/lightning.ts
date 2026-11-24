@@ -5,7 +5,7 @@ const lightningBolts: Array<LightningBolt> = [];
 let nextLightning = 0;
 
 export const drawLightning = (state: RenderState): void => {
-  const { context, time, signals, width, height } = state;
+  const { context, time, step, signals, width, height } = state;
   if (time * 1000 > nextLightning && signals.atmosphere > 0.5) {
     const segments: Array<LightningBoltSegment> = [];
     let cx = Math.random() * width;
@@ -26,7 +26,7 @@ export const drawLightning = (state: RenderState): void => {
 
   for (let i = lightningBolts.length - 1; i >= 0; i--) {
     const l = lightningBolts[i];
-    l.life -= 0.08;
+    l.life -= 0.08 * step;
     if (l.life <= 0) {
       lightningBolts.splice(i, 1);
       continue;

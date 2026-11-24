@@ -25,7 +25,7 @@ export const initParticles = (state: RenderState): void => {
 };
 
 export const drawParticles = (state: RenderState): void => {
-  const { context, time, signals, mouse, width, height } = state;
+  const { context, time, step, signals, mouse, width, height } = state;
   const storm = signals.atmosphere;
   const mig = signals.migration;
 
@@ -33,17 +33,17 @@ export const drawParticles = (state: RenderState): void => {
     const p = particles[i];
 
     if (p.type === 'air') {
-      p.vx += (Math.random() - 0.5) * 0.05 * (1 + storm * 4);
-      p.vy += -0.02 - storm * 0.08 + (Math.random() - 0.5) * 0.03;
-      p.vx += Math.sin(time * 0.5 + p.y * 0.003) * 0.02 * (1 + storm);
-      p.vx += signals.wind * 0.04;
+      p.vx += (Math.random() - 0.5) * 0.05 * (1 + storm * 4) * step;
+      p.vy += (-0.02 - storm * 0.08 + (Math.random() - 0.5) * 0.03) * step;
+      p.vx += Math.sin(time * 0.5 + p.y * 0.003) * 0.02 * (1 + storm) * step;
+      p.vx += signals.wind * 0.04 * step;
     } else if (p.type === 'creature') {
-      p.angle += (Math.random() - 0.5) * 0.2 * (0.5 + mig * 2);
-      p.vx += Math.cos(p.angle) * p.speed * mig * 0.15;
-      p.vy += Math.sin(p.angle) * p.speed * mig * 0.1 - 0.02;
+      p.angle += (Math.random() - 0.5) * 0.2 * (0.5 + mig * 2) * step;
+      p.vx += Math.cos(p.angle) * p.speed * mig * 0.15 * step;
+      p.vy += (Math.sin(p.angle) * p.speed * mig * 0.1 - 0.02) * step;
     } else {
-      p.vx += (Math.random() - 0.5) * 0.08;
-      p.vy -= 0.05 + signals.thermals * 0.12;
+      p.vx += (Math.random() - 0.5) * 0.08 * step;
+      p.vy -= (0.05 + signals.thermals * 0.12) * step;
       p.hue = 20 + signals.thermals * 30;
     }
 
@@ -53,15 +53,16 @@ export const drawParticles = (state: RenderState): void => {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 80 && dist > 0) {
       const f = (80 - dist) / 80;
-      p.vx += (dx / dist) * f * 0.8;
-      p.vy += (dy / dist) * f * 0.8;
+      p.vx += (dx / dist) * f * 0.8 * step;
+      p.vy += (dy / dist) * f * 0.8 * step;
     }
 
-    p.vx *= 0.97;
-    p.vy *= 0.97;
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life += 0.003;
+    const damping = 0.97 ** step;
+    p.vx *= damping;
+    p.vy *= damping;
+    p.x += p.vx * step;
+    p.y += p.vy * step;
+    p.life += 0.003 * step;
 
     if (p.life > p.maxLife || p.x < -10 || p.x > width + 10 || p.y < -20) {
       Object.assign(p, createParticle(state, i));

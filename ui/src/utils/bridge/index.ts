@@ -70,9 +70,9 @@ export class Bridge {
     }
   };
 
-  tick = (): void => {
+  tick = (step: number): void => {
     if (this.source === 'synthetic') {
-      this.modeTimer++;
+      this.modeTimer += step;
       if (this.modeTimer > MODE_DURATION + Math.random() * 400) {
         this.modeTimer = 0;
         this.modeIdx = (this.modeIdx + 1) % ECOSYSTEM_MODES.length;
@@ -81,8 +81,9 @@ export class Bridge {
     }
 
     // Lerp raw → target
+    const t = 1 - (1 - SMOOTHING_FACTOR) ** step;
     for (const key of Object.keys(this.raw) as Array<keyof RawSignals>) {
-      this.raw[key] += (this.target[key] - this.raw[key]) * SMOOTHING_FACTOR;
+      this.raw[key] += (this.target[key] - this.raw[key]) * t;
     }
   };
 }
