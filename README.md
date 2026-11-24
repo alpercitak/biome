@@ -86,7 +86,7 @@ docker compose up
 
 Opens at `http://localhost:5173`.
 
-The daemon container reads host system metrics and streams them to the UI container. Both share a private network — the WebSocket never leaves the compose stack.
+The UI container serves the static app; your browser connects directly to the daemon at `ws://localhost:9999`. The daemon uses host networking so it can read host metrics on Linux. On macOS and Windows (Docker Desktop) it reports the Docker VM's metrics instead — run `make dev-daemon` natively for real values.
 
 ```bash
 # Build only
