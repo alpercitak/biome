@@ -12,7 +12,7 @@ import {
 } from './constants';
 
 export class Bridge {
-  raw = DEFAULT_SIGNALS;
+  raw: RawSignals = { ...DEFAULT_SIGNALS };
   source: SignalSource = 'synthetic';
   /** Live signals the daemon couldn't read. */
   unavailable = new Set<keyof RawSignals>();
