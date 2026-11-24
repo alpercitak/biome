@@ -53,9 +53,16 @@ export class Renderer implements RenderState {
     });
   };
 
+  // Back the canvas with device pixels but keep drawing in CSS pixels, so it stays sharp on HiDPI screens.
   #resize = () => {
-    this.width = DOM.canvas.width = window.innerWidth;
-    this.height = DOM.canvas.height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    DOM.canvas.width = Math.round(this.width * dpr);
+    DOM.canvas.height = Math.round(this.height * dpr);
+    DOM.canvas.style.width = `${this.width}px`;
+    DOM.canvas.style.height = `${this.height}px`;
+    this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
   #draw = (): void => {
