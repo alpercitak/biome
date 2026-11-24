@@ -9,7 +9,14 @@ use serde::Serialize;
 use sysinfo::{Components, Networks, System};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::broadcast;
-use tokio_tungstenite::{accept_async, tungstenite::Message};
+use tokio_tungstenite::{
+    accept_hdr_async,
+    tungstenite::{
+        Message,
+        handshake::server::{ErrorResponse, Request, Response},
+        http::StatusCode,
+    },
+};
 
 const ADDR: &str = "127.0.0.1:9999";
 const POLL_MS: u64 = 800;
@@ -96,8 +103,37 @@ impl Collector {
     }
 }
 
+/// Browsers always send Origin; without this check any website could read the metrics.
+/// Requests without Origin come from non-browser clients and are allowed.
+fn is_allowed_origin(origin: &str) -> bool {
+    let Some(rest) = origin
+        .strip_prefix("http://")
+        .or_else(|| origin.strip_prefix("https://"))
+    else {
+        return false;
+    };
+    let host = match rest.rsplit_once(':') {
+        Some((host, port)) if port.bytes().all(|b| b.is_ascii_digit()) => host,
+        _ => rest,
+    };
+    matches!(host, "localhost" | "127.0.0.1" | "[::1]")
+}
+
+#[allow(clippy::result_large_err)] // signature required by tungstenite's handshake callback
+fn check_origin(req: &Request, resp: Response) -> Result<Response, ErrorResponse> {
+    match req.headers().get("origin").map(|o| o.to_str()) {
+        None => Ok(resp),
+        Some(Ok(origin)) if is_allowed_origin(origin) => Ok(resp),
+        _ => {
+            let mut err = ErrorResponse::new(None);
+            *err.status_mut() = StatusCode::FORBIDDEN;
+            Err(err)
+        }
+    }
+}
+
 async fn handle(stream: TcpStream, addr: SocketAddr, mut rx: broadcast::Receiver<String>) {
-    let ws = match accept_async(stream).await {
+    let ws = match accept_hdr_async(stream, check_origin).await {
         Ok(ws) => ws,
         Err(e) => {
             eprintln!("[biome] handshake {addr}: {e}");
