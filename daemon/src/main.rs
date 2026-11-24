@@ -43,13 +43,13 @@ struct Collector {
 
 impl Collector {
     fn new() -> Self {
-        let mut sys = System::new();
+        let mut sys = System::new().expect("failed to initialize sysinfo");
         sys.refresh_cpu_all();
         sys.refresh_memory();
         Self {
             sys,
-            networks: Networks::new_with_refreshed_list(),
-            components: Components::new_with_refreshed_list(),
+            networks: Networks::new_with_refreshed_list().expect("failed to list networks"),
+            components: Components::new_with_refreshed_list().expect("failed to list components"),
         }
     }
 
@@ -59,8 +59,8 @@ impl Collector {
         self.networks.refresh(true);
         self.components.refresh(true);
 
-        let cpu_usage = self.sys.cpus().iter().map(|c| c.cpu_usage()).sum::<f32>()
-            / self.sys.cpus().len() as f32;
+        let cpu_usage =
+            self.sys.cpus().iter().map(|c| c.usage()).sum::<f32>() / self.sys.cpus().len() as f32;
 
         let cpu_freq_ghz = self
             .sys
