@@ -20,6 +20,16 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
 
+  - package-ecosystem: docker
+    directories: [/daemon, /ui]
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore(docker)
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
