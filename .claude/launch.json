@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "daemon",
+      "runtimeExecutable": "cargo",
+      "runtimeArgs": ["run", "--manifest-path", "daemon/Cargo.toml"],
+      "port": 9999
+    },
+    {
+      "name": "ui",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "ui", "dev"],
+      "port": 5173
+    }
+  ]
+}
