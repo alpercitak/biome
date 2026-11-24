@@ -1,4 +1,4 @@
-FROM rust:1.95-slim AS builder
+FROM rust:1.95-slim-trixie AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY daemon/src ./daemon/src
 RUN touch daemon/src/main.rs && \
     cargo build --release --manifest-path daemon/Cargo.toml
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
