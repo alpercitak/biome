@@ -1,4 +1,7 @@
-use std::{net::SocketAddr, time::Duration};
+use std::{
+    net::SocketAddr,
+    time::{Duration, Instant},
+};
 
 use futures_util::{SinkExt, StreamExt};
 use serde::Serialize;
@@ -35,6 +38,7 @@ struct Collector {
     sys: System,
     networks: Networks,
     components: Components,
+    last_net_refresh: Instant,
 }
 
 impl Collector {
@@ -46,6 +50,7 @@ impl Collector {
             sys,
             networks: Networks::new_with_refreshed_list().expect("failed to list networks"),
             components: Components::new_with_refreshed_list().expect("failed to list components"),
+            last_net_refresh: Instant::now(),
         }
     }
 
@@ -53,6 +58,10 @@ impl Collector {
         self.sys.refresh_cpu_all();
         self.sys.refresh_memory();
         self.networks.refresh(true);
+        let now = Instant::now();
+        // Real time since the previous refresh; each cycle runs a bit longer than POLL_MS.
+        let s = now.duration_since(self.last_net_refresh).as_secs_f32();
+        self.last_net_refresh = now;
         self.components.refresh(true);
 
         let cpu_usage =
@@ -84,7 +93,6 @@ impl Collector {
         let (delta_up, delta_down) = self.networks.iter().fold((0u64, 0u64), |(u, d), (_, n)| {
             (u + n.transmitted(), d + n.received())
         });
-        let s = POLL_MS as f32 / 1000.0;
 
         Signals {
             cpu_usage,
@@ -164,9 +172,10 @@ async fn main() {
         tokio::spawn(async move {
             let mut collector = Collector::new();
             loop {
+                // Sleep first so every sample, including the first, spans a full interval.
+                tokio::time::sleep(Duration::from_millis(POLL_MS)).await;
                 let json = serde_json::to_string(&collector.collect()).unwrap();
                 let _ = tx.send(json);
-                tokio::time::sleep(Duration::from_millis(POLL_MS)).await;
             }
         });
     }
