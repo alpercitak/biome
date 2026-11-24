@@ -1,4 +1,4 @@
-.PHONY: help dev dev-ui dev-daemon build build-ui build-daemon install clean kill
+.PHONY: help dev dev-ui dev-daemon dev-daemon-release build build-ui build-daemon run-daemon kill clean check up down
 
 CYAN  := \033[0;36m
 RESET := \033[0m
@@ -8,8 +8,9 @@ help:
 	@echo ""
 	@echo "  $(CYAN)Biome$(RESET) — living ecosystem powered by machine signals"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+	@awk '/^## / {desc = substr($$0, 4); next} \
+		/^[a-zA-Z_-]+:/ && desc {split($$0, t, ":"); printf "  $(CYAN)%-18s$(RESET) %s\n", t[1], desc} \
+		{desc = ""}' $(MAKEFILE_LIST)
 	@echo ""
 
 ## Run UI + daemon concurrently
@@ -37,7 +38,7 @@ dev-daemon-release:
 ## Build everything
 build: build-ui build-daemon 
 
- ## Build UI for production (output: ui/dist)
+## Build UI for production (output: ui/dist)
 build-ui:
 	cd ui && bun install && bun run build
 	@echo "$(CYAN)ui built$(RESET) → ui/dist/"
@@ -49,7 +50,7 @@ build-daemon:
 
 ## Run the release daemon binary directly
 run-daemon:
-	./daemon/target/release/daemon
+	./daemon/target/release/biome-daemon
 
 ## Kill any running daemon or vite processes
 kill: 
@@ -65,7 +66,7 @@ clean:
 	rm -rf ui/dist daemon/target
 	@echo "$(CYAN)clean$(RESET)"
 
- ## Type-check TS + check Rust without building
+## Type-check TS + check Rust without building
 check:
 	cd ui && bunx tsc --noEmit
 	cargo check --manifest-path daemon/Cargo.toml
