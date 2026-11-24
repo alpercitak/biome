@@ -49,3 +49,5 @@ jobs:
       - run: cargo fmt --manifest-path daemon/Cargo.toml --check
       - run: cargo clippy --manifest-path daemon/Cargo.toml -- --D warnings
       - run: make build
+      - run: bunx tsc --noEmit
+        working-directory: ui
