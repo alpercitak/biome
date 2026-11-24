@@ -11,7 +11,7 @@ export class Renderer implements RenderState {
   width = 0;
   height = 0;
   time = 0;
-  mouse = DEFAULT_MOUSE;
+  mouse = { ...DEFAULT_MOUSE };
   signals = DEFAULT_SIGNALS;
 
   constructor() {
@@ -31,6 +31,11 @@ export class Renderer implements RenderState {
 
   #bindMouse = (): void => {
     document.addEventListener('mousemove', (e) => {
+      // Start tracking from the first real position instead of the offscreen default.
+      if (this.mouse.px === DEFAULT_MOUSE.px) {
+        this.mouse.x = this.mouse.px = e.clientX;
+        this.mouse.y = this.mouse.py = e.clientY;
+      }
       this.mouse.vx = e.clientX - this.mouse.px;
       this.mouse.vy = e.clientY - this.mouse.py;
       this.mouse.px = this.mouse.x;
