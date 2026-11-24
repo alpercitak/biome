@@ -52,13 +52,10 @@ build-daemon:
 run-daemon:
 	./daemon/target/release/biome-daemon
 
-## Kill any running daemon or vite processes
-kill: 
-	@pkill -f biome-daemon 2>/dev/null || true
-	@pkill -f "vite" 2>/dev/null || true
-	@for port in 5173 9999; do \
-		lsof -ti :$$port | xargs -r kill -9; \
-	done
+## Stop this project's daemon and vite processes
+kill:
+	@pkill -x biome-daemon 2>/dev/null || true
+	@pkill -f "$(CURDIR)/ui/node_modules/.bin/vite" 2>/dev/null || true
 	@echo "$(CYAN)processes stopped$(RESET)"
 
 ## Remove build artifacts
@@ -71,8 +68,10 @@ check:
 	cd ui && bunx tsc --noEmit
 	cargo check --manifest-path daemon/Cargo.toml
 
+## Build and start the Docker Compose stack
 up:
-	docker-compose up --build --remove-orphans
+	docker compose up --build --remove-orphans
 
+## Stop the Docker Compose stack
 down:
-	docker-compose down		
+	docker compose down
