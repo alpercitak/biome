@@ -1,4 +1,4 @@
-.PHONY: help dev dev-ui dev-daemon dev-daemon-release build build-ui build-daemon run-daemon kill clean check up down
+.PHONY: help dev dev-ui dev-daemon dev-daemon-release build build-ui build-daemon run-daemon kill clean check test up down
 
 CYAN  := \033[0;36m
 RESET := \033[0m
@@ -67,6 +67,11 @@ clean:
 check:
 	cd ui && bunx tsc --noEmit
 	cargo check --manifest-path daemon/Cargo.toml
+
+## Run UI and daemon tests
+test:
+	cd ui && bun test
+	cargo test --manifest-path daemon/Cargo.toml
 
 ## Build and start the Docker Compose stack
 up:

@@ -51,3 +51,4 @@ jobs:
       - run: make build
       - run: bunx tsc --noEmit
         working-directory: ui
+      - run: make test
