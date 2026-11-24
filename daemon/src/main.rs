@@ -32,8 +32,6 @@ struct Collector {
     sys: System,
     networks: Networks,
     components: Components,
-    prev_net_up: u64,
-    prev_net_down: u64,
 }
 
 impl Collector {
@@ -45,13 +43,11 @@ impl Collector {
             sys,
             networks: Networks::new_with_refreshed_list(),
             components: Components::new_with_refreshed_list(),
-            prev_net_up: 0,
-            prev_net_down: 0,
         }
     }
 
     fn collect(&mut self) -> Signals {
-        self.sys.refresh_cpu_usage();
+        self.sys.refresh_cpu_all();
         self.sys.refresh_memory();
         self.networks.refresh(true);
         self.components.refresh(true);
@@ -81,13 +77,10 @@ impl Collector {
             .and_then(|c| c.temperature())
             .unwrap_or(0.0);
 
-        let (total_up, total_down) = self.networks.iter().fold((0u64, 0u64), |(u, d), (_, n)| {
+        // transmitted()/received() are already bytes since the previous refresh.
+        let (delta_up, delta_down) = self.networks.iter().fold((0u64, 0u64), |(u, d), (_, n)| {
             (u + n.transmitted(), d + n.received())
         });
-        let delta_up = total_up.saturating_sub(self.prev_net_up);
-        let delta_down = total_down.saturating_sub(self.prev_net_down);
-        self.prev_net_up = total_up;
-        self.prev_net_down = total_down;
         let s = POLL_MS as f32 / 1000.0;
 
         Signals {
