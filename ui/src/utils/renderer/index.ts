@@ -47,10 +47,6 @@ export class Renderer implements RenderState {
         DOM.cursor.style.left = e.clientX + 'px';
         DOM.cursor.style.top = e.clientY + 'px';
       }
-      setTimeout(() => {
-        this.mouse.vx *= 0.5;
-        this.mouse.vy *= 0.5;
-      }, 50);
     });
   };
 
@@ -88,6 +84,10 @@ export class Renderer implements RenderState {
 
   frame = (step: number): void => {
     this.step = step;
+    // Let mouse velocity fade once the cursor stops (roughly halves every 50ms).
+    const decay = 0.8 ** step;
+    this.mouse.vx *= decay;
+    this.mouse.vy *= decay;
     this.time += (0.012 + this.signals.pulse * 0.012) * step;
     this.#draw();
   };
