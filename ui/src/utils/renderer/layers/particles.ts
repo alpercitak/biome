@@ -6,7 +6,7 @@ const particles: Array<Particle> = [];
 
 const createParticle = (state: RenderState, i: number): Particle => ({
   x: Math.random() * state.width,
-  y: Math.random() * state.width,
+  y: Math.random() * state.height,
   vx: (Math.random() - 0.5) * 0.3,
   vy: -Math.random() * 0.4 - 0.1,
   life: Math.random(),
