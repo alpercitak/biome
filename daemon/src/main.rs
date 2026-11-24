@@ -1,8 +1,4 @@
-use std::{
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::{net::SocketAddr, time::Duration};
 
 use futures_util::{SinkExt, StreamExt};
 use serde::Serialize;
@@ -163,16 +159,12 @@ async fn main() {
     let listener = TcpListener::bind(ADDR).await.expect("bind failed");
     println!("[biome] daemon ws://{ADDR}");
     let (tx, _) = broadcast::channel::<String>(CHAN_CAP);
-    let tx = Arc::new(tx);
     {
         let tx = tx.clone();
         tokio::spawn(async move {
-            let c = Arc::new(Mutex::new(Collector::new()));
+            let mut collector = Collector::new();
             loop {
-                let json = {
-                    let mut col = c.lock().unwrap();
-                    serde_json::to_string(&col.collect()).unwrap()
-                };
+                let json = serde_json::to_string(&collector.collect()).unwrap();
                 let _ = tx.send(json);
                 tokio::time::sleep(Duration::from_millis(POLL_MS)).await;
             }
