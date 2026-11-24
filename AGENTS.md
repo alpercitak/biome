@@ -41,4 +41,4 @@ Ambient visualization of live system metrics. A Rust daemon (`daemon/`) streams 
 
 - UI: `cd ui && bunx tsc --noEmit && bun run build`.
 - Daemon: `cargo fmt --manifest-path daemon/Cargo.toml --check` and `cargo clippy --manifest-path daemon/Cargo.toml -- -D warnings`.
-- Tests: `make test` (Bun's test runner for `ui/src/**/*.test.ts`, `cargo test` for the daemon). Test files are excluded from `tsc`.
+- Tests: `make test` (Bun's test runner for `ui/src/**/*.test.ts`, `cargo test` for the daemon).
