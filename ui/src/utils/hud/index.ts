@@ -48,6 +48,12 @@ const HUD_SIGNALS = [
   getNorm: (v: VisualSignals) => number;
 }>;
 
+const HUD_ROWS = HUD_SIGNALS.map((signal) => ({
+  ...signal,
+  fill: DOM.signalFill(signal.id),
+  value: DOM.signalValue(signal.id),
+}));
+
 const fmtNet = (kbps: number): string => (kbps >= 1000 ? `${(kbps / 1000).toFixed(1)}m` : `${Math.round(kbps)}k`);
 
 export const updateHUD = (
@@ -57,11 +63,9 @@ export const updateHUD = (
   mode: EcosystemMode,
   unavailable: ReadonlySet<keyof RawSignals>,
 ): void => {
-  for (const signal of HUD_SIGNALS) {
-    const fill = DOM.signalFill(signal.id);
-    const val = DOM.signalValue(signal.id);
-    if (fill) fill.style.width = `${signal.getNorm(visual) * 100}%`;
-    if (val) val.textContent = signal.rawKey && unavailable.has(signal.rawKey) ? 'n/a' : signal.getValue(raw);
+  for (const signal of HUD_ROWS) {
+    signal.fill.style.width = `${signal.getNorm(visual) * 100}%`;
+    signal.value.textContent = signal.rawKey && unavailable.has(signal.rawKey) ? 'n/a' : signal.getValue(raw);
   }
   DOM.mode.textContent = mode;
   DOM.source.textContent = source === 'live' ? '● live' : '○ synthetic';
