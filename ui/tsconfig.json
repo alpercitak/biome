@@ -10,5 +10,6 @@
     "verbatimModuleSyntax": true,
     "lib": ["ES2025", "DOM", "DOM.Iterable"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }
