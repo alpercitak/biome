@@ -180,3 +180,59 @@ async fn main() {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn request(origin: Option<&str>) -> Request {
+        let mut builder = Request::builder().uri("/");
+        if let Some(origin) = origin {
+            builder = builder.header("origin", origin);
+        }
+        builder.body(()).unwrap()
+    }
+
+    #[test]
+    fn allows_local_origins() {
+        for origin in [
+            "http://localhost",
+            "http://localhost:5173",
+            "https://localhost:4173",
+            "http://127.0.0.1:5173",
+            "http://[::1]",
+            "http://[::1]:5173",
+        ] {
+            assert!(is_allowed_origin(origin), "{origin}");
+        }
+    }
+
+    #[test]
+    fn rejects_other_origins() {
+        for origin in [
+            "https://evil.example",
+            "http://localhost.evil.com",
+            "http://evil.com:localhost",
+            "http://127.0.0.1.evil.com",
+            "ws://localhost:5173",
+            "localhost:5173",
+            "null",
+            "",
+        ] {
+            assert!(!is_allowed_origin(origin), "{origin}");
+        }
+    }
+
+    #[test]
+    fn handshake_allows_missing_or_local_origin() {
+        assert!(check_origin(&request(None), Response::new(())).is_ok());
+        assert!(check_origin(&request(Some("http://localhost:5173")), Response::new(())).is_ok());
+    }
+
+    #[test]
+    fn handshake_rejects_foreign_origin_with_403() {
+        let err =
+            check_origin(&request(Some("https://evil.example")), Response::new(())).unwrap_err();
+        assert_eq!(err.status(), StatusCode::FORBIDDEN);
+    }
+}
