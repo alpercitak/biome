@@ -1,5 +1,7 @@
 use std::{
+    fs,
     net::SocketAddr,
+    path::Path,
     time::{Duration, Instant},
 };
 
@@ -20,6 +22,7 @@ use tokio_tungstenite::{
 const ADDR: &str = "127.0.0.1:9999";
 const POLL_MS: u64 = 800;
 const CHAN_CAP: usize = 8;
+const HWMON_DIR: &str = "/sys/class/hwmon";
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -100,11 +103,37 @@ impl Collector {
             mem_used_gb,
             mem_total_gb,
             temp_c,
-            fan_rpm: 0.0, // platform-specific; UI falls back to thermal signal
+            fan_rpm: read_fan_rpm(Path::new(HWMON_DIR)),
             net_up_kbps: delta_up as f32 / 1024.0 / s,
             net_down_kbps: delta_down as f32 / 1024.0 / s,
         }
     }
+}
+
+/// Fastest fan reported by Linux hwmon (`<root>/*/fan*_input`, in RPM).
+/// Returns 0 where unavailable (other platforms, no fan sensors); the UI shows n/a.
+fn read_fan_rpm(root: &Path) -> f32 {
+    let Ok(devices) = fs::read_dir(root) else {
+        return 0.0;
+    };
+    devices
+        .flatten()
+        .filter_map(|device| fs::read_dir(device.path()).ok())
+        .flatten()
+        .flatten()
+        .filter(|file| {
+            let name = file.file_name();
+            let name = name.to_string_lossy();
+            name.starts_with("fan") && name.ends_with("_input")
+        })
+        .filter_map(|file| {
+            fs::read_to_string(file.path())
+                .ok()?
+                .trim()
+                .parse::<f32>()
+                .ok()
+        })
+        .fold(0.0, f32::max)
 }
 
 /// Browsers always send Origin; without this check any website could read the metrics.
@@ -200,6 +229,30 @@ mod tests {
             builder = builder.header("origin", origin);
         }
         builder.body(()).unwrap()
+    }
+
+    #[test]
+    fn reads_fastest_fan_from_hwmon() {
+        let root = std::env::temp_dir().join(format!("biome-hwmon-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        for (dir, file, value) in [
+            ("hwmon0", "fan1_input", "1200\n"),
+            ("hwmon0", "fan2_input", "0\n"),
+            ("hwmon1", "fan1_input", "2400\n"),
+            ("hwmon1", "fan1_label", "9999\n"),
+            ("hwmon1", "temp1_input", "45000\n"),
+            ("hwmon2", "fan1_input", "garbage\n"),
+        ] {
+            fs::create_dir_all(root.join(dir)).unwrap();
+            fs::write(root.join(dir).join(file), value).unwrap();
+        }
+        assert_eq!(read_fan_rpm(&root), 2400.0);
+        fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn fan_rpm_is_zero_without_hwmon() {
+        assert_eq!(read_fan_rpm(Path::new("/nonexistent/hwmon")), 0.0);
     }
 
     #[test]

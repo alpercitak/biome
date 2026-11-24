@@ -40,6 +40,8 @@ When the daemon isn't running, the UI falls back to a procedural simulation that
 | Fan speed       | Wind, particle drift     |
 | Network I/O     | Creature migrations      |
 
+Fan speed is read on Linux (hwmon). Where it or temperature can't be read, the HUD shows `n/a`, and wind follows temperature when there's no fan reading.
+
 ---
 
 ## Stack
