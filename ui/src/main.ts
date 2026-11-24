@@ -19,7 +19,7 @@ const loop = (now: number): void => {
   const visual = normalize(bridge.raw);
   renderer.signals = visual;
   renderer.frame(step);
-  updateHUD(bridge.raw, visual, bridge.source, bridge.mode);
+  updateHUD(bridge.raw, visual, bridge.source, bridge.mode, bridge.unavailable);
   requestAnimationFrame(loop);
 };
 

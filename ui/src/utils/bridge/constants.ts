@@ -17,6 +17,9 @@ export const DEFAULT_SIGNALS = {
   netDownKbps: 100,
 } satisfies RawSignals;
 
+// Sensors the daemon may be unable to read on some platforms; it reports them as 0.
+export const OPTIONAL_SIGNALS = ['tempC', 'fanRpm'] as const satisfies ReadonlyArray<keyof RawSignals>;
+
 export const ECOSYSTEM_MODES: ReadonlyArray<EcosystemMode> = ['calm', 'storm', 'drought', 'bloom', 'migration'];
 
 export const ECOSYSTEM_MODE_MAP = {

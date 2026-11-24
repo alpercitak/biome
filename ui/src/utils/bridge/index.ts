@@ -5,6 +5,7 @@ import {
   ECOSYSTEM_MODE_MAP,
   ECOSYSTEM_MODES,
   MODE_DURATION,
+  OPTIONAL_SIGNALS,
   POLL_MS,
   SMOOTHING_FACTOR,
   WS_URL,
@@ -13,6 +14,8 @@ import {
 export class Bridge {
   raw = DEFAULT_SIGNALS;
   source: SignalSource = 'synthetic';
+  /** Live signals the daemon couldn't read. */
+  unavailable = new Set<keyof RawSignals>();
 
   private target: RawSignals = { ...this.raw };
   private modeIdx = 0;
@@ -53,6 +56,10 @@ export class Bridge {
         try {
           const d = JSON.parse(e.data) as Partial<RawSignals>;
           Object.assign(this.target, d);
+          this.unavailable.clear();
+          for (const key of OPTIONAL_SIGNALS) {
+            if (d[key] === 0) this.unavailable.add(key);
+          }
           if (d.memTotalGb) {
             this.raw.memTotalGb = d.memTotalGb;
           }
@@ -62,6 +69,7 @@ export class Bridge {
       };
       this.ws.onclose = () => {
         this.source = 'synthetic';
+        this.unavailable.clear();
         setTimeout(() => this.#tryLive(), POLL_MS * 5);
       };
       this.ws.onerror = () => this.ws?.close();

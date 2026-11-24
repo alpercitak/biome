@@ -23,12 +23,14 @@ const HUD_SIGNALS = [
   {
     id: 'thermals',
     label: 'thermals',
+    rawKey: 'tempC',
     getValue: (r: RawSignals) => `${Math.round(r.tempC)}°c`,
     getNorm: (v: VisualSignals) => v.thermals,
   },
   {
     id: 'wind',
     label: 'wind',
+    rawKey: 'fanRpm',
     getValue: (r: RawSignals) => `${Math.round(r.fanRpm)} rpm`,
     getNorm: (v: VisualSignals) => v.wind,
   },
@@ -38,16 +40,28 @@ const HUD_SIGNALS = [
     getValue: (r: RawSignals) => `↑${fmtNet(r.netUpKbps)} ↓${fmtNet(r.netDownKbps)}`,
     getNorm: (v: VisualSignals) => v.migration,
   },
-];
+] satisfies Array<{
+  id: string;
+  label: string;
+  rawKey?: keyof RawSignals;
+  getValue: (r: RawSignals) => string;
+  getNorm: (v: VisualSignals) => number;
+}>;
 
 const fmtNet = (kbps: number): string => (kbps >= 1000 ? `${(kbps / 1000).toFixed(1)}m` : `${Math.round(kbps)}k`);
 
-export const updateHUD = (raw: RawSignals, visual: VisualSignals, source: SignalSource, mode: EcosystemMode): void => {
+export const updateHUD = (
+  raw: RawSignals,
+  visual: VisualSignals,
+  source: SignalSource,
+  mode: EcosystemMode,
+  unavailable: ReadonlySet<keyof RawSignals>,
+): void => {
   for (const signal of HUD_SIGNALS) {
     const fill = DOM.signalFill(signal.id);
     const val = DOM.signalValue(signal.id);
     if (fill) fill.style.width = `${signal.getNorm(visual) * 100}%`;
-    if (val) val.textContent = signal.getValue(raw);
+    if (val) val.textContent = signal.rawKey && unavailable.has(signal.rawKey) ? 'n/a' : signal.getValue(raw);
   }
   DOM.mode.textContent = mode;
   DOM.source.textContent = source === 'live' ? '● live' : '○ synthetic';
